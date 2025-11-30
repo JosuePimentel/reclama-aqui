@@ -28,7 +28,31 @@ export async function ProfessorsRoute (app: FastifyInstance) {
       throw new NotFoundError()
     }
 
-    return professor
+    
+    const comments = await database('comments')
+      .where('professor_id', professor.id)
+    const commentsArray = []
+
+    for (const commentData of comments) {
+      const { user_id: userId, comment, score } = commentData
+      const user = await database('users').where('id', userId).select('name').first()
+      commentsArray.push({
+        comment,
+        score,
+        id: userId,
+        userName: user?.name
+      })
+    }
+
+    const professorData = {
+      ...professor,
+      comments: commentsArray,
+      score: commentsArray.length
+        ? Math.floor(commentsArray.reduce((acc, c) => acc + (c.score/commentsArray.length), 0))
+        : null
+    }
+
+    return professorData
   })
 
   app.post('/', async (req: FastifyRequest, rep: FastifyReply) => {

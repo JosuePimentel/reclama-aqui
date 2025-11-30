@@ -21,6 +21,7 @@ app.setErrorHandler((error, _req, rep) => {
     });
   }
 
+  console.error(error)
   return rep.status(500).send({
     error: "InternalServerError",
     message: "Unexpected error occurred",

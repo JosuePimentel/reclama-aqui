@@ -6,7 +6,7 @@
 - [ ] Deve ser possível logar
 - [ ] Deve ser possível Trocar de senha
 - [ ] Apenas usuários com privilegio admin podem adicionar professores
-- [ ] A rota de `GET :id` do professor deve retornar também os comentários e o score do professor
+- [X] A rota de `GET :id` do professor deve retornar também os comentários e o score do professor
 - [ ] Deve proteger as rotas com autenticação e verificar de privilegio admin
 
 ## RNF
