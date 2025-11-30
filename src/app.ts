@@ -2,6 +2,7 @@ import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
 import { BadRequestError } from "@errors/bad-request.error.js";
 import { UsersRoute } from "@routes/users.route";
+import { ProfessorsRoute } from "@routes/professors.route";
 
 export const app = fastify()
 
@@ -23,4 +24,8 @@ app.setErrorHandler((error, _req, rep) => {
 
 app.register(UsersRoute, {
   prefix: '/users'
+})
+
+app.register(ProfessorsRoute, {
+  prefix: '/professors'
 })

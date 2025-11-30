@@ -13,7 +13,6 @@ declare module 'knex/types/tables' {
       id: string
       name: string
       photo: string
-      score: number
     },
     comments: {
       user_id: string

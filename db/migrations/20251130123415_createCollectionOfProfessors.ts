@@ -6,7 +6,6 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary()
     table.string('name').notNullable()
     table.string('photo')
-    table.integer('score').checkBetween([0, 5])
   })
 }
 

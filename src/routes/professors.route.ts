@@ -7,9 +7,9 @@ import { env } from "@env";
 import { randomUUID } from "node:crypto";
 import { NotFoundError } from "@errors/not-found.error";
 
-export async function UsersRoute (app: FastifyInstance) {
+export async function ProfessorsRoute (app: FastifyInstance) {
   app.get('/', async () => {
-    return database('users').select('id', 'name', 'email', 'privilegeAdmin')
+    return database('professors').select('*')
   })
 
   app.get('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
@@ -19,16 +19,16 @@ export async function UsersRoute (app: FastifyInstance) {
       throw new BadRequestError()
     }
 
-    const user = await database('users')
+    const professor = await database('professors')
       .where('id', id)
-      .select('id', 'name', 'email', 'privilegeAdmin')
+      .select('*')
       .first()
 
-    if (!user) {
+    if (!professor) {
       throw new NotFoundError()
     }
 
-    return user
+    return professor
   })
 
   app.post('/', async (req: FastifyRequest, rep: FastifyReply) => {
@@ -36,9 +36,7 @@ export async function UsersRoute (app: FastifyInstance) {
 
     const bodySchema = z.object({
       name: z.string(),
-      email: z.email(),
-      password: z.string().min(8),
-      privilegeAdmin: z.boolean().default(false)
+      photo: z.string().default(''),
     })
 
     const parseBodySchema = bodySchema.safeParse(body)
@@ -47,15 +45,12 @@ export async function UsersRoute (app: FastifyInstance) {
       throw new BadRequestError()
     }
 
-    const password = await hash(parseBodySchema.data.password, env!.HASH_SALT)
-
-    const user = await database('users').insert({
+    const professor = await database('professors').insert({
       id: randomUUID(),
       ...parseBodySchema.data,
-      password
-    })
+    }, '*')
 
-    rep.status(201).send(user[0])
+    rep.status(201).send(professor[0])
   })
 
   app.patch('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
@@ -64,7 +59,7 @@ export async function UsersRoute (app: FastifyInstance) {
 
     const bodySchema = z.object({
       name: z.string().optional(),
-      email: z.email().optional(),
+      photo: z.string().optional(),
     })
 
     const parseBodySchema = bodySchema.safeParse(body)
@@ -73,21 +68,21 @@ export async function UsersRoute (app: FastifyInstance) {
       throw new BadRequestError()
     }
 
-    const user = await database('users')
+    const professor = await database('professors')
       .where('id', id)
       .first()
 
-    if (!user) {
+    if (!professor) {
       throw new NotFoundError()
     }
 
     const { data } = parseBodySchema
 
-    const userUpdated = await database('users')
+    const professorUpdated = await database('professors')
       .where('id', id)
-      .update({ email: data.email!, name: data.name! }, ['name', 'email'])
+      .update({ photo: data.photo!, name: data.name! }, '*')
       
-    rep.status(200).send(userUpdated[0])
+    rep.status(200).send(professorUpdated[0])
   })
 
   app.delete('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
@@ -97,16 +92,16 @@ export async function UsersRoute (app: FastifyInstance) {
       throw new BadRequestError()
     }
 
-    const user = await database('users')
+    const professor = await database('professors')
       .where('id', id)
-      .select('id', 'name', 'email', 'privilegeAdmin')
+      .select('*')
       .first()
 
-    if (!user) {
+    if (!professor) {
       throw new NotFoundError()
     }
 
-    await database('users')
+    await database('professors')
       .where('id', id)
       .del()
 
