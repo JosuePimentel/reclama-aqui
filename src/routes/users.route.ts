@@ -53,7 +53,7 @@ export async function UsersRoute (app: FastifyInstance) {
       id: randomUUID(),
       ...parseBodySchema.data,
       password
-    })
+    }, ['id', 'name', 'email', 'privilegeAdmin'])
 
     rep.status(201).send(user[0])
   })
@@ -85,7 +85,7 @@ export async function UsersRoute (app: FastifyInstance) {
 
     const userUpdated = await database('users')
       .where('id', id)
-      .update({ email: data.email!, name: data.name! }, ['name', 'email'])
+      .update({ email: data.email!, name: data.name! }, ['id', 'name', 'email', 'privilegeAdmin'])
       
     rep.status(200).send(userUpdated[0])
   })

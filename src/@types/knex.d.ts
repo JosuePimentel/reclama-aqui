@@ -15,6 +15,7 @@ declare module 'knex/types/tables' {
       photo: string
     },
     comments: {
+      id: string
       user_id: string
       professor_id: string
       comment: string
