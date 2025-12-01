@@ -44,7 +44,8 @@
     "paths": {
       "@errors/*": ["src/errors/*"],
       "@routes/*": ["src/routes/*"],
-      "@env": ["src/env/index.ts"]
+      "@env": ["src/env/index.ts"],
+      "@middlewares": ["src/middlewares/*"]
     }
   }
 }

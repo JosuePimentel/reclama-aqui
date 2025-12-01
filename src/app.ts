@@ -5,10 +5,17 @@ import { UsersRoute } from "@routes/users.route";
 import { ProfessorsRoute } from "@routes/professors.route";
 import { CommentsRoute } from "@routes/comments.route";
 import { NotFoundError } from "@errors/not-found.error";
+import fastifyJwt from "@fastify/jwt";
+import { env } from "@env";
+import { AuthRoute } from "@routes/auth.route";
 
 export const app = fastify()
 
 app.register(fastifyCookie)
+
+app.register(fastifyJwt, {
+  secret: env!.JWT_SECRET
+})
 
 app.setErrorHandler((error, _req, rep) => {
   if (
@@ -38,4 +45,8 @@ app.register(ProfessorsRoute, {
 
 app.register(CommentsRoute, {
   prefix: '/comments'
+})
+
+app.register(AuthRoute, {
+  prefix: 'auth'
 })
