@@ -1,5 +1,6 @@
 import { BadRequestError } from "@errors/bad-request.error"
 import { NotFoundError } from "@errors/not-found.error"
+import { Auth } from "@middlewares/auth"
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { randomUUID } from "node:crypto"
 import { database } from "src/database"
@@ -8,7 +9,6 @@ import { z } from "zod"
 export async function CommentsRoute (app: FastifyInstance) {
   app.post('/', async (req: FastifyRequest, rep: FastifyReply) => {
     const { body } = req
-    console.log(body)
 
     const bodySchema = z.object({
       user_id: z.uuidv4(),

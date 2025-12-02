@@ -8,6 +8,8 @@ import { NotFoundError } from "@errors/not-found.error";
 import fastifyJwt from "@fastify/jwt";
 import { env } from "@env";
 import { AuthRoute } from "@routes/auth.route";
+import { NotAuthorizedError } from "@errors/not-authorized.error";
+import { ForbiddenError } from "@errors/forbidden-error";
 
 export const app = fastify()
 
@@ -20,7 +22,9 @@ app.register(fastifyJwt, {
 app.setErrorHandler((error, _req, rep) => {
   if (
     error instanceof BadRequestError ||
-    error instanceof NotFoundError
+    error instanceof NotFoundError ||
+    error instanceof NotAuthorizedError ||
+    error instanceof ForbiddenError
   ) {
     return rep.status(error.statusCode).send({
       message: error.message,

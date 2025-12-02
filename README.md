@@ -3,7 +3,7 @@
   - [X] Users
   - [X] Professors
 - [X] Deve ser possível fazer as seguintes operações na tabela de Comments: `POST`, `DELETE`, `UPDATE`
-- [ ] Deve ser possível logar
+- [X] Deve ser possível logar
 - [ ] Deve ser possível Trocar de senha
 - [ ] Apenas usuários com privilegio admin podem adicionar professores
 - [X] A rota de `GET :id` do professor deve retornar também os comentários e o score do professor

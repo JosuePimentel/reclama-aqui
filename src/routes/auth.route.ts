@@ -36,17 +36,17 @@ export async function AuthRoute (app: FastifyInstance) {
       throw new BadRequestError()
     }
 
-    const token = app.jwt.sign({ sub: user!.id, email: user!.email });
+    const token = app.jwt.sign({ sub: user!.id, email: user!.email, admin: user!.privilegeAdmin });
 
-    rep.cookie('token', token, {
+    rep.cookie('token', `Bearer ${token}`, {
       path: '/',
       maxAge: env!.JWT_EXPIRATION_TIME
     });
 
-    rep.send(200);
+    rep.status(200).send();
   })
 
-  app.get('/logout', (_req, res) => {
-    res.clearCookie('token', { path: '/' }).send(200);
+  app.get('/logout', (_, rep: FastifyReply) => {
+    rep.clearCookie('token', { path: '/' }).status(200).send();
   });
 }

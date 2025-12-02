@@ -2,10 +2,9 @@ import { BadRequestError } from "@errors/bad-request.error";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { database } from "src/database";
 import { z } from "zod";
-import { hash } from 'bcrypt'
-import { env } from "@env";
 import { randomUUID } from "node:crypto";
 import { NotFoundError } from "@errors/not-found.error";
+import { Auth } from "@middlewares/auth";
 
 export async function ProfessorsRoute (app: FastifyInstance) {
   app.get('/', async () => {

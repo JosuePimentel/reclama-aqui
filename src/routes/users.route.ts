@@ -6,13 +6,15 @@ import { hash } from 'bcrypt'
 import { env } from "@env";
 import { randomUUID } from "node:crypto";
 import { NotFoundError } from "@errors/not-found.error";
+import { Auth } from "@middlewares/auth";
+import { checkIds } from "@utils/check-ids";
 
 export async function UsersRoute (app: FastifyInstance) {
-  app.get('/', async () => {
+  app.get('/', {preHandler: Auth }, async () => {
     return database('users').select('id', 'name', 'email', 'privilegeAdmin')
   })
 
-  app.get('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
+  app.get('/:id', {preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
     const { id } = req.params as { id: string }
 
     if (!id) {
@@ -58,8 +60,9 @@ export async function UsersRoute (app: FastifyInstance) {
     rep.status(201).send(user[0])
   })
 
-  app.patch('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
+  app.patch('/:id', {preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
     const { id } = req.params as { id: string }
+    const { auth } = req
     const { body } = req
 
     const bodySchema = z.object({
@@ -81,6 +84,7 @@ export async function UsersRoute (app: FastifyInstance) {
       throw new NotFoundError()
     }
 
+    checkIds({ auth, resourceId: user.id })
     const { data } = parseBodySchema
 
     const userUpdated = await database('users')
@@ -90,8 +94,9 @@ export async function UsersRoute (app: FastifyInstance) {
     rep.status(200).send(userUpdated[0])
   })
 
-  app.delete('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
+  app.delete('/:id', {preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
     const { id } = req.params as { id: string }
+    const { auth } = req
 
     if (!id) {
       throw new BadRequestError()
@@ -105,6 +110,8 @@ export async function UsersRoute (app: FastifyInstance) {
     if (!user) {
       throw new NotFoundError()
     }
+
+    checkIds({ auth, resourceId: user.id })
 
     await database('users')
       .where('id', id)
