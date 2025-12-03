@@ -1,14 +1,15 @@
 import { BadRequestError } from "@errors/bad-request.error"
 import { NotFoundError } from "@errors/not-found.error"
 import { Auth } from "@middlewares/auth"
+import { HasPermission } from "@utils/has-permission"
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { randomUUID } from "node:crypto"
 import { database } from "src/database"
 import { z } from "zod"
 
 export async function CommentsRoute (app: FastifyInstance) {
-  app.post('/', async (req: FastifyRequest, rep: FastifyReply) => {
-    const { body } = req
+  app.post('/', { preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
+    const { body, auth } = req
 
     const bodySchema = z.object({
       user_id: z.uuidv4(),
@@ -41,8 +42,9 @@ export async function CommentsRoute (app: FastifyInstance) {
     rep.status(201).send(comment[0])
   })
 
-  app.delete('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
+  app.delete('/:id', { preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
     const { id } = req.params as { id: string }
+    const { auth } = req
 
     if (!id) {
       throw new BadRequestError()
@@ -55,6 +57,8 @@ export async function CommentsRoute (app: FastifyInstance) {
     if (!comment) {
       throw new NotFoundError()
     }
+
+    HasPermission({ auth, resourceId: comment.user_id })
 
     await database('comments')
       .where('id', id)

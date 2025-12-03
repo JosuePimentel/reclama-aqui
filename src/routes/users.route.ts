@@ -7,14 +7,18 @@ import { env } from "@env";
 import { randomUUID } from "node:crypto";
 import { NotFoundError } from "@errors/not-found.error";
 import { Auth } from "@middlewares/auth";
-import { checkIds } from "@utils/check-ids";
+import { HasPermission } from "@utils/has-permission";
+import { CheckIfIsAdmin } from "@utils/check-if-is-admin";
 
 export async function UsersRoute (app: FastifyInstance) {
-  app.get('/', {preHandler: Auth }, async () => {
+  app.get('/', {preHandler: Auth }, async (req: FastifyRequest) => {
+    const { auth } = req
+    CheckIfIsAdmin({ admin: auth.admin })
+
     return database('users').select('id', 'name', 'email', 'privilegeAdmin')
   })
 
-  app.get('/:id', {preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
+  app.get('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
     const { id } = req.params as { id: string }
 
     if (!id) {
@@ -84,7 +88,7 @@ export async function UsersRoute (app: FastifyInstance) {
       throw new NotFoundError()
     }
 
-    checkIds({ auth, resourceId: user.id })
+    HasPermission({ auth, resourceId: user.id })
     const { data } = parseBodySchema
 
     const userUpdated = await database('users')
@@ -111,7 +115,7 @@ export async function UsersRoute (app: FastifyInstance) {
       throw new NotFoundError()
     }
 
-    checkIds({ auth, resourceId: user.id })
+    HasPermission({ auth, resourceId: user.id })
 
     await database('users')
       .where('id', id)

@@ -1,12 +1,13 @@
 import { ForbiddenError } from "@errors/forbidden-error"
 
-export const checkIds = ({
+export const HasPermission = ({
   auth,
   resourceId
-}: { auth: { userId: string, admin: boolean }, resourceId: string}) => {
+}: { auth: { userId: string, admin: boolean }, resourceId: string}): void => {
   if (
     auth.userId.toString() !== resourceId &&
-    !auth.admin) {
+    !auth.admin
+  ) {
     throw new ForbiddenError()
   }
 }

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { NotFoundError } from "@errors/not-found.error";
 import { Auth } from "@middlewares/auth";
+import { CheckIfIsAdmin } from "@utils/check-if-is-admin";
 
 export async function ProfessorsRoute (app: FastifyInstance) {
   app.get('/', async () => {
@@ -54,8 +55,10 @@ export async function ProfessorsRoute (app: FastifyInstance) {
     return professorData
   })
 
-  app.post('/', async (req: FastifyRequest, rep: FastifyReply) => {
-    const { body } = req
+  app.post('/', { preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
+    const { body, auth } = req
+
+    CheckIfIsAdmin({ admin: auth.admin })
 
     const bodySchema = z.object({
       name: z.string(),
@@ -76,9 +79,11 @@ export async function ProfessorsRoute (app: FastifyInstance) {
     rep.status(201).send(professor[0])
   })
 
-  app.patch('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
+  app.patch('/:id', { preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
     const { id } = req.params as { id: string }
-    const { body } = req
+    const { body, auth } = req
+
+    CheckIfIsAdmin({ admin: auth.admin })
 
     const bodySchema = z.object({
       name: z.string().optional(),
@@ -108,9 +113,12 @@ export async function ProfessorsRoute (app: FastifyInstance) {
     rep.status(200).send(professorUpdated[0])
   })
 
-  app.delete('/:id', async (req: FastifyRequest, rep: FastifyReply) => {
+  app.delete('/:id', { preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
     const { id } = req.params as { id: string }
+    const { auth } = req
 
+    CheckIfIsAdmin({ admin: auth.admin })
+    
     if (!id) {
       throw new BadRequestError()
     }
