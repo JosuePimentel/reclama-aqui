@@ -9,10 +9,9 @@ import { z } from "zod"
 
 export async function CommentsRoute (app: FastifyInstance) {
   app.post('/', { preHandler: Auth }, async (req: FastifyRequest, rep: FastifyReply) => {
-    const { body, auth } = req
+    const { body, auth: { userId } } = req
 
     const bodySchema = z.object({
-      user_id: z.uuidv4(),
       professor_id: z.uuidv4(),
       comment: z.string().max(500),
       score: z.number().gt(0).lt(5),
@@ -26,7 +25,7 @@ export async function CommentsRoute (app: FastifyInstance) {
 
     const bodyToInsert = parseBodySchema.data
 
-    const user = await database('users').where('id', bodyToInsert.user_id).first()
+    const user = await database('users').where('id', userId).first()
     const professor = await database('professors').where('id', bodyToInsert.professor_id).first()
 
     if ( !user || !professor ) {
@@ -36,6 +35,7 @@ export async function CommentsRoute (app: FastifyInstance) {
     const comment = await database('comments')
       .insert({
         id: randomUUID(),
+        user_id: userId,
         ...bodyToInsert
       }, '*')
 
@@ -64,6 +64,6 @@ export async function CommentsRoute (app: FastifyInstance) {
       .where('id', id)
       .del()
 
-    rep.send(204)
+    rep.status(204).send()
   })
 }
